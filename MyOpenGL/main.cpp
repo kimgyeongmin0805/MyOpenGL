@@ -8,13 +8,23 @@
 #include <vector>
 
 #include "shader.h"
+#include "camera.h"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window);
+void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+void cursorPosCallback(GLFWwindow* window, double xpos, double ypos);
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+void processInput(GLFWwindow* window, float delta_time);
 unsigned int load_texture(const std::string& path);
 
 const unsigned int SRC_WIDTH = 800;
 const unsigned int SRC_HEIGHT = 600;
+
+Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
+float xpos_last;
+float ypos_last;
+bool firstMouse = true;
+float time_last = 0.0f;
+float time_delta = 0.0f;
 
 int main() {
 	// glfw init
@@ -31,7 +41,11 @@ int main() {
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    glfwSetCursorPosCallback(window, cursorPosCallback);
+    glfwSetScrollCallback(window, scrollCallback);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -118,7 +132,11 @@ int main() {
 
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
-		processInput(window);
+        float time_now = static_cast<float>(glfwGetTime());
+        time_delta = time_now - time_last;
+        time_last = time_now;
+
+		processInput(window, time_delta);
 
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -127,8 +145,8 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, texture);
 
         our_shader.use();
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SRC_WIDTH / (float)SRC_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 projection = camera.getPerspective();
+        glm::mat4 view = camera.getLookAt();
         our_shader.setMat4("projection", projection);
         our_shader.setMat4("view", view);
 
@@ -146,14 +164,51 @@ int main() {
 	glfwTerminate();
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow* window) {
+void processInput(GLFWwindow* window, float delta_time) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
-	}
+    }
+    else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        camera.movementProcess(CameraMovement::FORWARD, delta_time);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        camera.movementProcess(CameraMovement::BACKWARD, delta_time);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        camera.movementProcess(CameraMovement::RIGHT, delta_time);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        camera.movementProcess(CameraMovement::LEFT, delta_time);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        camera.movementProcess(CameraMovement::UP, delta_time);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+        camera.movementProcess(CameraMovement::DOWN, delta_time);
+    }
+}
+
+void cursorPosCallback(GLFWwindow* window, double x, double y) {
+    float xpos = static_cast<float>(x);
+    float ypos = static_cast<float>(y);
+
+    if (firstMouse) {
+        xpos_last = xpos;
+        ypos_last = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - xpos_last;
+    float yoffset = ypos_last - ypos;
+
+    xpos_last = xpos;
+    ypos_last = ypos;
+
+    camera.angleProcess(xoffset, yoffset);
 }
 
 unsigned int load_texture(const std::string& path) {
@@ -183,4 +238,8 @@ unsigned int load_texture(const std::string& path) {
     stbi_image_free(image);
 
     return texture;
+}
+
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+    camera.scrollProcess(static_cast<float>(yoffset));
 }

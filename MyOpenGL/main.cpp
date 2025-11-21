@@ -12,6 +12,7 @@
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void cursorPosCallback(GLFWwindow* window, double xpos, double ypos);
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 unsigned int load_texture(const std::string& path);
 
@@ -40,6 +41,7 @@ int main() {
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     glfwSetCursorPosCallback(window, cursorPosCallback);
+    glfwSetScrollCallback(window, scrollCallback);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -166,9 +168,9 @@ void processInput(GLFWwindow* window) {
 	}
 }
 
-void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
-    xpos = static_cast<float>(xpos);
-    ypos = static_cast<float>(ypos);
+void cursorPosCallback(GLFWwindow* window, double x, double y) {
+    float xpos = static_cast<float>(x);
+    float ypos = static_cast<float>(y);
 
     if (firstMouse) {
         xpos_last = xpos;
@@ -212,4 +214,8 @@ unsigned int load_texture(const std::string& path) {
     stbi_image_free(image);
 
     return texture;
+}
+
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+    camera.scrollProcess(static_cast<float>(yoffset));
 }

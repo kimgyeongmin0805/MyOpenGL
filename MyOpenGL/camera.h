@@ -31,6 +31,16 @@ public:
 		right_ = glm::normalize(glm::cross(front_, world_up_));
 		up_ = glm::normalize(glm::cross(right_, front_));
 	}
+	void scrollProcess(float yoffset) {
+		fov_ -= yoffset;
+
+		if (fov_ < 1.0f) {
+			fov_ = 1.0f;
+		}
+		else if (fov_ > 45.0f) {
+			fov_ = 45.0f;
+		}
+	}
 
 private:
 	float pitch_;

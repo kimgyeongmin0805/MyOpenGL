@@ -5,6 +5,15 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+enum class CameraMovement {
+	FORWARD,
+	BACKWARD,
+	RIGHT,
+	LEFT,
+	UP,
+	DOWN,
+};
+
 class Camera {
 public:
 	Camera(glm::vec3 pos = glm::vec3(0.0f))
@@ -39,6 +48,29 @@ public:
 		}
 		else if (fov_ > 45.0f) {
 			fov_ = 45.0f;
+		}
+	}
+	void movementProcess(CameraMovement mov, float delta_time) {
+		float velocity = movement_speed_ * delta_time;
+		switch (mov) {
+		case CameraMovement::FORWARD:
+			pos_ += front_ * velocity;
+			break;
+		case CameraMovement::BACKWARD:
+			pos_ -= front_ * velocity;
+			break;
+		case CameraMovement::RIGHT:
+			pos_ += right_ * velocity;
+			break;
+		case CameraMovement::LEFT:
+			pos_ -= right_ * velocity;
+			break;
+		case CameraMovement::UP:
+			pos_ += up_ * velocity;
+			break;
+		case CameraMovement::DOWN:
+			pos_ -= up_ * velocity;
+			break;
 		}
 	}
 

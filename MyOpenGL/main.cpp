@@ -7,12 +7,19 @@
 #include <vector>
 
 #include "shader.h"
+#include "camera.h"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+void cursorPosCallback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow* window);
 
 const unsigned int SRC_WIDTH = 800;
 const unsigned int SRC_HEIGHT = 600;
+
+Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
+float xpos_last;
+float ypos_last;
+bool firstMouse = true;
 
 int main() {
 	// glfw init
@@ -29,7 +36,10 @@ int main() {
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    glfwSetCursorPosCallback(window, cursorPosCallback);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -119,8 +129,8 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         our_shader.use();
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SRC_WIDTH / (float)SRC_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 projection = camera.getPerspective();
+        glm::mat4 view = camera.getLookAt();
         our_shader.setMat4("projection", projection);
         our_shader.setMat4("view", view);
 
@@ -138,7 +148,7 @@ int main() {
 	glfwTerminate();
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
@@ -146,4 +156,23 @@ void processInput(GLFWwindow* window) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
 	}
+}
+
+void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
+    xpos = static_cast<float>(xpos);
+    ypos = static_cast<float>(ypos);
+
+    if (firstMouse) {
+        xpos_last = xpos;
+        ypos_last = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - xpos_last;
+    float yoffset = ypos_last - ypos;
+
+    xpos_last = xpos;
+    ypos_last = ypos;
+
+    camera.angleProcess(xoffset, yoffset);
 }

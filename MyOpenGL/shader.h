@@ -37,11 +37,11 @@ public:
 		vertex_shader = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(vertex_shader, 1, &v_cstr, nullptr);
 		glCompileShader(vertex_shader);
-		checkShaderError(vertex_shader, ShaderType::VertexShader);
+		checkShaderError(vertex_shader, ShaderType::VertexShader, v_path);
 		fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragment_shader, 1, &f_cstr, nullptr);
 		glCompileShader(fragment_shader);
-		checkShaderError(fragment_shader, ShaderType::FragmentShader);
+		checkShaderError(fragment_shader, ShaderType::FragmentShader, f_path);
 		ID = glCreateProgram();
 		glAttachShader(ID, vertex_shader);
 		glAttachShader(ID, fragment_shader);
@@ -57,7 +57,7 @@ public:
 	void setBool(const std::string& name, bool value) const {
 		GLint location = glGetUniformLocation(ID, name.c_str());
 		if (location == -1) {
-			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF BOOL" << std::endl;
+			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF BOOL: '" << name << "'" << std::endl;
 		}
 		else {
 			glUniform1i(location, value);
@@ -66,7 +66,7 @@ public:
 	void setInt(const std::string& name, int value) const {
 		GLint location = glGetUniformLocation(ID, name.c_str());
 		if (location == -1) {
-			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF INT" << std::endl;
+			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF INT: '" << name << "'" << std::endl;
 		}
 		else {
 			glUniform1i(location, value);
@@ -75,7 +75,7 @@ public:
 	void setFloat(const std::string& name, float value) const {
 		GLint location = glGetUniformLocation(ID, name.c_str());
 		if (location == -1) {
-			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF FLOAT" << std::endl;
+			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF FLOAT: '" << name << "'" << std::endl;
 		}
 		else {
 			glUniform1f(location, value);
@@ -84,7 +84,7 @@ public:
 	void setVec2(const std::string& name, const glm::vec2& value) const {
 		GLint location = glGetUniformLocation(ID, name.c_str());
 		if (location == -1) {
-			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF VEC2" << std::endl;
+			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF VEC2: '" << name << "'" << std::endl;
 		}
 		else {
 			glUniform2fv(location, 1, &value[0]);
@@ -93,7 +93,7 @@ public:
 	void setVec3(const std::string& name, const glm::vec3& value) const {
 		GLint location = glGetUniformLocation(ID, name.c_str());
 		if (location == -1) {
-			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF VEC3" << std::endl;
+			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF VEC3: '" << name << "'" << std::endl;
 		}
 		else {
 			glUniform3fv(location, 1, &value[0]);
@@ -102,7 +102,7 @@ public:
 	void setVec4(const std::string& name, const glm::vec4& value) const {
 		GLint location = glGetUniformLocation(ID, name.c_str());
 		if (location == -1) {
-			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF VEC4" << std::endl;
+			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF VEC4: '" << name << "'" << std::endl;
 		}
 		else {
 			glUniform4fv(location, 1, &value[0]);
@@ -111,7 +111,7 @@ public:
 	void setMat2(const std::string& name, const glm::mat2& mat) const {
 		GLint location = glGetUniformLocation(ID, name.c_str());
 		if (location == -1) {
-			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF MAT2" << std::endl;
+			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF MAT2: '" << name << "'" << std::endl;
 		}
 		else {
 			glUniformMatrix2fv(location, 1, GL_FALSE, &mat[0][0]);
@@ -120,7 +120,7 @@ public:
 	void setMat3(const std::string& name, const glm::mat3& mat) const {
 		GLint location = glGetUniformLocation(ID, name.c_str());
 		if (location == -1) {
-			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF MAT2" << std::endl;
+			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF MAT3: '" << name << "'" << std::endl;
 		}
 		else {
 			glUniformMatrix3fv(location, 1, GL_FALSE, &mat[0][0]);
@@ -129,12 +129,13 @@ public:
 	void setMat4(const std::string& name, const glm::mat4& mat) const {
 		GLint location = glGetUniformLocation(ID, name.c_str());
 		if (location == -1) {
-			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF MAT2" << std::endl;
+			std::cout << "ERROR::SHADER::UNIFORM_LOCATION ERROR OF MAT4: '" << name << "'" << std::endl;
 		}
 		else {
 			glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]);
 		}
 	}
+
 
 private:
 	enum class ShaderType {
@@ -150,14 +151,14 @@ private:
 		}
 		return "UNKNOWN";
 	}
-	void checkShaderError(unsigned int shader, ShaderType type) {
+	void checkShaderError(unsigned int shader, ShaderType type, const std::string& path = "") {
 		int success;
 		char infoLog[1024];
 		if (type != ShaderType::Program) {
 			glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 			if (!success) {
 				glGetShaderInfoLog(shader, sizeof(infoLog), nullptr, infoLog);
-				std::cout << "ERROR::SHADER::COMPILATION ERROR OF TYPE: " << enumToString(type) << "\n" << infoLog << std::endl;
+				std::cout << "ERROR::SHADER::COMPILATION ERROR OF TYPE: " << enumToString(type) << " from " << path << "\n" << infoLog << std::endl;
 			}
 		}
 		else {

@@ -73,7 +73,12 @@ public:
 			break;
 		}
 	}
-
+	glm::vec3& getPosition() {
+		return pos_;
+	}
+	glm::vec3& getFront() {
+		return front_;
+	}
 private:
 	float pitch_;
 	float yaw_;

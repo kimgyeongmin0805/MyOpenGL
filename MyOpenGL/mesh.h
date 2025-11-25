@@ -32,8 +32,8 @@ class Mesh {
 public:
 	unsigned int VAO;
 
-	Mesh(const std::vector<Vertex>& vertices, const std::vector<Texture>& textures, const std::vector<unsigned int>& indices)
-		: vertices_(vertices), textures_(textures), indices_(indices) {
+	Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture>& textures)
+		: vertices_(vertices), indices_(indices), textures_(textures) {
 		setupMesh();
 	}
 	void Draw(Shader& shader) {
@@ -76,8 +76,8 @@ public:
 
 private:
 	std::vector<Vertex> vertices_;
-	std::vector<Texture> textures_;
 	std::vector<unsigned int> indices_;
+	std::vector<Texture> textures_;
 	unsigned int VBO;
 	unsigned int VEO;
 	

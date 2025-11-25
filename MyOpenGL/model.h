@@ -99,12 +99,12 @@ private:
 					vertex.m_Weights[j] = 0.0f;
 				}
 				for (unsigned int j = 0; j < mesh->mNumBones; j++) {
-					aiBone* bone = mesh->mBones[i];
+					aiBone* bone = mesh->mBones[j];
 					for (unsigned int k = 0; k < bone->mNumWeights; k++) {
 						aiVertexWeight weight = bone->mWeights[k];
 						if (weight.mVertexId == i) {
 							for (int l = 0; l < MAX_BONE_INFLUENCE; l++) {
-								if (vertex.m_BoneIDs[l] != -1) {
+								if (vertex.m_BoneIDs[l] == -1) {
 									vertex.m_BoneIDs[l] = j;
 									vertex.m_Weights[l] = weight.mWeight;
 									break;

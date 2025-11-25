@@ -59,10 +59,10 @@ public:
 
 			unsigned int location = glGetUniformLocation(shader.ID, name.c_str());
 			if (location != -1) {
-				glUniform1d(location, i);
+				glUniform1i(location, i);
 			}
 			else {
-				std::cout << "ERROR::MESH::Failed to get Uniform Location of name: " << name << std::endl;
+				// std::cout << "ERROR::MESH::Failed to get Uniform Location of name: " << name << std::endl;
 			}
 			glActiveTexture(GL_TEXTURE0 + i);
 			glBindTexture(GL_TEXTURE_2D, textures_[i].id);
@@ -83,6 +83,7 @@ private:
 	
 	void setupMesh() {
 		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
 
 		glGenBuffers(1, &VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);

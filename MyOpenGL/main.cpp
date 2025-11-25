@@ -74,6 +74,14 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         our_shader.use();
+        our_shader.setVec3("spotLight.position", camera.getPosition());
+        our_shader.setVec3("spotLight.direction", camera.getFront());
+        our_shader.setFloat("spotLight.inner_cutoff", cos(glm::radians(8.0f)));
+        our_shader.setFloat("spotLight.outer_cutoff", cos(glm::radians(10.0f)));
+        our_shader.setVec3("spotLight.ambient", glm::vec3(0.1f));
+        our_shader.setVec3("spotLight.diffuse", glm::vec3(1.0f));
+        our_shader.setVec3("spotLight.specular", glm::vec3(1.0f));
+        our_shader.setVec3("ViewPos", camera.getPosition());
         glm::mat4 projection = camera.getPerspective();
         glm::mat4 view = camera.getLookAt();
         glm::mat4 model = glm::mat4(1.0f);

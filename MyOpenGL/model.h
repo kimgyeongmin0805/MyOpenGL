@@ -3,7 +3,6 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <stb_image.h>
 
 #include <assimp/Importer.hpp>
@@ -14,8 +13,6 @@
 #include "mesh.h"
 
 #include <string>
-#include <fstream>
-#include <sstream>
 #include <vector>
 
 class Model {
@@ -182,9 +179,17 @@ private:
 			if (nrChannels == 4) format = GL_RGBA;
 
 			glBindTexture(GL_TEXTURE_2D, texture_id);
-
 			glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image);
 			glGenerateMipmap(GL_TEXTURE_2D);
+
+			if (nrChannels == 1) {
+				GLint swizzleMask[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
+				glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+			}
+			else {
+				GLint swizzleMask[] = { GL_RED, GL_GREEN, GL_BLUE, GL_ONE };
+				glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+			}
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
